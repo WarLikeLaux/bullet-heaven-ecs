@@ -29,6 +29,9 @@ export const PROJECTILE_COLOR = 0xffdd44;
 export const FIRE_INTERVAL = 0.5;
 export const FIRE_RANGE = 12;
 export const PROJECTILE_LIFETIME = 3;
+export const XP_PER_KILL = 10;
+export const BASE_XP_TO_LEVEL = 50;
+export const XP_SCALE_FACTOR = 1.2;
 
 export function generateEnemySpritePaths(): string[] {
   return Array.from({ length: CHARACTER_COUNT }, (_, i) => {

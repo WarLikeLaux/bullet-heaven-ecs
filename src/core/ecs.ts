@@ -41,6 +41,13 @@ export type Entity = {
   projectile?: true;
   lifetime?: number;
   fireTimer?: number;
+  fireInterval?: number;
+  weaponDamage?: number;
+  xpMultiplier?: number;
+  iframeDuration?: number;
+  xp?: number;
+  xpToNext?: number;
+  level?: number;
 };
 
 export function createWorld() {
