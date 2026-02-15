@@ -53,4 +53,3 @@
 ## См. также
 
 - `docs/ai/contract.md` — запреты на аллокации в loop
-- `docs/roadmap.md` — Iteration 21 (производительность)
