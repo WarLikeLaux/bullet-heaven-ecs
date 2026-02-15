@@ -1,39 +1,49 @@
 {
-	"name": "bullet-heaven-ecs",
-	"private": true,
-	"version": "0.0.0",
-	"type": "module",
-	"scripts": {
-		"dev": "vite",
-		"build": "tsc && vite build",
-		"preview": "vite preview",
-		"lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-		"format": "prettier --write .",
-		"test": "vitest",
-		"typecheck": "tsc --noEmit",
-		"pm2:start": "pm2 start ecosystem.config.cjs",
-		"pm2:stop": "pm2 stop ecosystem.config.cjs",
-		"pm2:restart": "pm2 restart ecosystem.config.cjs",
-		"pm2:delete": "pm2 delete ecosystem.config.cjs",
-		"pm2:logs": "pm2 logs bullet-heaven-dev"
-	},
-	"dependencies": {
-		"miniplex": "^2.0.0",
-		"three": "^0.160.0"
-	},
-	"devDependencies": {
-		"@types/node": "^20.0.0",
-		"@types/three": "^0.160.0",
-		"@typescript-eslint/eslint-plugin": "^6.0.0",
-		"@typescript-eslint/parser": "^6.0.0",
-		"@vitejs/plugin-basic-ssl": "^1.0.0",
-		"eslint": "^8.0.0",
-		"eslint-config-prettier": "^9.0.0",
-		"jsdom": "^28.1.0",
-		"pm2": "^6.0.14",
-		"prettier": "^3.0.0",
-		"typescript": "^5.0.0",
-		"vite": "^5.0.0",
-		"vitest": "^1.0.0"
-	}
+  "name": "bullet-heaven-ecs",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0 --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "format:docs": "prettier --write --no-ignore docs/**/*.md README.md .agent/workflows/*.md",
+    "lint:docs": "prettier --check --no-ignore docs/**/*.md README.md .agent/workflows/*.md",
+    "typecheck": "tsc --noEmit",
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck",
+    "test": "vitest --run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "diff": "git add -N . && git diff",
+    "dev:pm2": "pnpm exec pm2 start ecosystem.config.cjs",
+    "dev:pm2:stop": "pnpm exec pm2 stop bullet-heaven-dev",
+    "dev:pm2:restart": "pnpm exec pm2 restart bullet-heaven-dev",
+    "dev:pm2:status": "pnpm exec pm2 status bullet-heaven-dev",
+    "dev:pm2:logs": "pnpm exec pm2 logs bullet-heaven-dev",
+    "h": "node -e \"const p=JSON.parse(require('fs').readFileSync('package.json','utf8'));console.log('\\nДоступные команды:\\n');Object.entries(p.scripts).forEach(([k,v])=>console.log('  pnpm '+k.padEnd(20)+v));console.log()\""
+  },
+  "dependencies": {
+    "miniplex": "^2.0.0",
+    "three": "^0.160.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/three": "^0.160.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "@vitejs/plugin-basic-ssl": "^1.0.0",
+    "@vitest/coverage-v8": "^4.0.18",
+    "eslint": "^8.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "jsdom": "^28.1.0",
+    "pm2": "^6.0.14",
+    "prettier": "^3.0.0",
+    "typescript": "^5.0.0",
+    "vite": "^5.0.0",
+    "vitest": "^4.0.18"
+  }
 }
