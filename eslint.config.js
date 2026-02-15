@@ -15,6 +15,6 @@ export default tseslint.config(
     },
   },
   {
-    ignores: ['dist/', 'ecosystem.config.cjs'],
+    ignores: ['dist/', 'src-tauri/', 'ecosystem.config.cjs'],
   }
 );
