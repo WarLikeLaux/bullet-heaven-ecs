@@ -4,20 +4,102 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/x-icon" href="/bullet-heaven-ecs/favicon.ico" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
     <title>Bullet Heaven (ECS)</title>
     <style>
       body {
         margin: 0;
         overflow: hidden;
+        background: #1a1a2e;
       }
 
       canvas {
         display: block;
       }
+
+      #loading-screen {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: #1a1a2e;
+        transition: opacity 0.5s ease;
+      }
+
+      #loading-screen.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .loading-title {
+        font-family: 'Press Start 2P', monospace;
+        font-size: 1.8rem;
+        background: linear-gradient(135deg, #ff6b9d, #c084fc, #60a5fa);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 2.5rem;
+        text-shadow: none;
+      }
+
+      .loading-bar-wrap {
+        width: 280px;
+        height: 4px;
+        background: #2a2a4e;
+        border-radius: 2px;
+        overflow: hidden;
+      }
+
+      .loading-bar {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #ff6b9d, #c084fc, #60a5fa);
+        border-radius: 2px;
+        animation: fill-bar 1s ease-out forwards;
+      }
+
+      @keyframes fill-bar {
+        to {
+          width: 100%;
+        }
+      }
+
+      .loading-hint {
+        font-family: monospace;
+        color: #4a4a6e;
+        margin-top: 1.2rem;
+        font-size: 0.75rem;
+        letter-spacing: 0.1em;
+        animation: pulse 1.5s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 0.4;
+        }
+
+        50% {
+          opacity: 1;
+        }
+      }
     </style>
-    <script type="module" crossorigin src="/bullet-heaven-ecs/assets/index-2zwTE9rj.js"></script>
+    <script type="module" crossorigin src="/bullet-heaven-ecs/assets/index-B5FMgeav.js"></script>
   </head>
 
   <body>
+    <div id="loading-screen">
+      <div class="loading-title">BULLET HEAVEN</div>
+      <div class="loading-bar-wrap">
+        <div class="loading-bar"></div>
+      </div>
+      <div class="loading-hint">loading assets...</div>
+    </div>
   </body>
 </html>
