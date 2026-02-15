@@ -9,6 +9,7 @@ import {
   ENEMY_SCALE,
   HIT_FLASH_DURATION,
 } from '@/config';
+import { VfxSheet } from '@/rendering/vfx-sprite';
 import { playShoot, playHit } from '@/core/audio';
 
 const AIM_VECTOR = new Vector3();
@@ -44,7 +45,8 @@ export function findNearestEnemy(
 export function runAutoFireSystem(
   world: World<Entity>,
   scene: Scene,
-  dt: number
+  dt: number,
+  vfxSheet?: VfxSheet
 ) {
   const players = world.with('position', 'playerInput', 'fireTimer');
   const enemies = world.with('enemy', 'position', 'hp');
@@ -63,7 +65,9 @@ export function runAutoFireSystem(
       scene,
       player.position,
       AIM_VECTOR,
-      dmg
+      dmg,
+      undefined,
+      vfxSheet
     );
     projectile.targetRef = target as Entity;
     target.pendingDamage =

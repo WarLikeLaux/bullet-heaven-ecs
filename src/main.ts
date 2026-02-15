@@ -10,6 +10,7 @@ import {
   bindResize,
 } from '@/rendering/setup';
 import { createBackground, scatterDecor } from '@/rendering/background';
+import { createVfxSheet, VfxSheet } from '@/rendering/vfx-sprite';
 import { hideLoadingScreen } from '@/ui/loading';
 import { createCharacterSelect } from '@/ui/character-select';
 import { createFpsCounter } from '@/ui/fps-counter';
@@ -17,6 +18,7 @@ import { startMusic } from '@/core/audio';
 import { createMuteButton } from '@/ui/mute-button';
 import { createJoystick, isTouchDevice } from '@/ui/joystick';
 import { startGameLoop } from '@/core/game-loop';
+import { registerAllWeapons } from '@/weapons/index';
 import {
   CAMERA_ZOOM,
   PLAYER_SPRITE,
@@ -24,7 +26,22 @@ import {
   DECOR_SPRITES,
   MIN_LOADING_MS,
   generateEnemySpritePaths,
+  VFX_FIREBALL,
+  VFX_FIREBALL_COLS,
+  VFX_FIREBALL_ROWS,
+  VFX_ORB,
+  VFX_ORB_COLS,
+  VFX_ORB_ROWS,
+  VFX_STARBURST,
+  VFX_STARBURST_COLS,
+  VFX_STARBURST_ROWS,
+  VFX_LIGHTNING,
+  VFX_LIGHTNING_COLS,
+  VFX_LIGHTNING_ROWS,
+  VFX_FPS,
 } from '@/config';
+
+const VFX_PATHS = [VFX_FIREBALL, VFX_ORB, VFX_STARBURST, VFX_LIGHTNING];
 
 const world = createWorld();
 const scene = createScene();
@@ -43,18 +60,53 @@ async function handleCharacterChange(path: string) {
   updateSpriteUV(texture, 0, DIRECTION_DOWN);
 }
 
+function buildVfxSheets(
+  vfxTextures: ReturnType<typeof preloadAll> extends Promise<infer T>
+    ? T
+    : never
+): Record<string, VfxSheet> {
+  const [fireball, orb, starburst, lightning] = vfxTextures;
+  return {
+    fireball: createVfxSheet(
+      fireball,
+      VFX_FIREBALL_COLS,
+      VFX_FIREBALL_ROWS,
+      VFX_FPS
+    ),
+    orb: createVfxSheet(orb, VFX_ORB_COLS, VFX_ORB_ROWS, VFX_FPS),
+    starburst: createVfxSheet(
+      starburst,
+      VFX_STARBURST_COLS,
+      VFX_STARBURST_ROWS,
+      VFX_FPS
+    ),
+    lightning: createVfxSheet(
+      lightning,
+      VFX_LIGHTNING_COLS,
+      VFX_LIGHTNING_ROWS,
+      VFX_FPS
+    ),
+  };
+}
+
 async function boot() {
-  const paths = [
+  registerAllWeapons();
+  const gamePaths = [
     PLAYER_SPRITE,
     GROUND_TILE,
     ...DECOR_SPRITES,
     ...generateEnemySpritePaths(),
   ];
   const minWait = new Promise<void>((r) => setTimeout(r, MIN_LOADING_MS));
-  const [textures] = await Promise.all([preloadAll(paths), minWait]);
+  const [textures, vfxTextures] = await Promise.all([
+    preloadAll(gamePaths),
+    preloadAll(VFX_PATHS),
+    minWait,
+  ]);
   const [playerTex, groundTex, ...rest] = textures;
   const decorTex = rest.slice(0, DECOR_SPRITES.length);
   const enemyTex = rest.slice(DECOR_SPRITES.length);
+  const vfxSheets = buildVfxSheets(vfxTextures);
 
   await hideLoadingScreen();
   createBackground(scene, groundTex);
@@ -77,6 +129,7 @@ async function boot() {
     player,
     fpsEl: createFpsCounter(),
     enemyTextures: enemyTex,
+    vfxSheets,
   });
 }
 
