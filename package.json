@@ -7,8 +7,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "lint:fix": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0 --fix",
+    "lint": "eslint . --max-warnings 0",
+    "lint:fix": "eslint . --max-warnings 0 --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "format:docs": "prettier --write --no-ignore docs/**/*.md README.md .agent/workflows/*.md",
@@ -30,23 +30,28 @@
   },
   "dependencies": {
     "miniplex": "^2.0.0",
-    "three": "^0.160.0"
+    "three": "^0.182.0"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
-    "@types/three": "^0.160.0",
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0",
-    "@vitejs/plugin-basic-ssl": "^1.0.0",
+    "@eslint/js": "^9.39.2",
+    "@types/node": "^25.2.3",
+    "@types/three": "^0.182.0",
+    "@vitejs/plugin-basic-ssl": "^2.1.4",
     "@vitest/coverage-v8": "^4.0.18",
-    "eslint": "^8.0.0",
-    "eslint-config-prettier": "^9.0.0",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
     "gh-pages": "^6.3.0",
     "jsdom": "^28.1.0",
     "pm2": "^6.0.14",
     "prettier": "^3.0.0",
     "typescript": "^5.0.0",
-    "vite": "^5.0.0",
+    "typescript-eslint": "^8.55.0",
+    "vite": "^7.3.1",
     "vitest": "^4.0.18"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   }
 }
