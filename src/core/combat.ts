@@ -20,7 +20,8 @@ export function runContactDamageSystem(world: World<Entity>, elapsed: number) {
       if (dx * dx + dy * dy >= COLLISION_RADIUS_SQ) continue;
 
       player.hp -= enemy.damage;
-      player.invulnerableUntil = elapsed + IFRAME_DURATION;
+      player.invulnerableUntil =
+        elapsed + (player.iframeDuration ?? IFRAME_DURATION);
 
       if (player.hp <= 0) {
         player.hp = 0;
@@ -32,13 +33,17 @@ export function runContactDamageSystem(world: World<Entity>, elapsed: number) {
   }
 }
 
-export function runDeathSystem(world: World<Entity>, scene: Scene) {
+export function runDeathSystem(world: World<Entity>, scene: Scene): number {
   const query = world.with('dead');
+  let kills = 0;
 
   for (const entity of query) {
+    if (entity.enemy) kills += 1;
     if (entity.view) {
       scene.remove(entity.view);
     }
     world.remove(entity);
   }
+
+  return kills;
 }

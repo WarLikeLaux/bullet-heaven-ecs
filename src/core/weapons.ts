@@ -48,10 +48,16 @@ export function runAutoFireSystem(
     const target = findNearestEnemy(player.position, enemies);
     if (!target) continue;
 
-    player.fireTimer = FIRE_INTERVAL;
+    player.fireTimer = player.fireInterval ?? FIRE_INTERVAL;
 
     AIM_VECTOR.subVectors(target.position, player.position);
-    const projectile = createProjectile(scene, player.position, AIM_VECTOR);
+    const dmg = player.weaponDamage ?? undefined;
+    const projectile = createProjectile(
+      scene,
+      player.position,
+      AIM_VECTOR,
+      dmg
+    );
     world.add(projectile);
   }
 }

@@ -13,7 +13,9 @@ let nextProjectileId = 0;
 export function createProjectile(
   scene: Scene,
   origin: Vector3,
-  direction: Vector3
+  direction: Vector3,
+  damage = PROJECTILE_DAMAGE,
+  speed = PROJECTILE_SPEED
 ): Entity {
   const geometry = new CircleGeometry(PROJECTILE_RADIUS, 8);
   const material = new MeshBasicMaterial({ color: PROJECTILE_COLOR });
@@ -24,10 +26,7 @@ export function createProjectile(
   const id = `proj-${nextProjectileId}`;
   nextProjectileId += 1;
 
-  const velocity = direction
-    .clone()
-    .normalize()
-    .multiplyScalar(PROJECTILE_SPEED);
+  const velocity = direction.clone().normalize().multiplyScalar(speed);
 
   return {
     id,
@@ -35,7 +34,7 @@ export function createProjectile(
     velocity,
     view: mesh,
     projectile: true,
-    damage: PROJECTILE_DAMAGE,
+    damage,
     lifetime: PROJECTILE_LIFETIME,
   };
 }
