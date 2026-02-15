@@ -17,6 +17,13 @@
   text-shadow: 0 0 20px rgba(255, 68, 102, 0.6);
 }
 
+.stats {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: #ccc;
+  letter-spacing: 0.1em;
+}
+
 .button {
   font-family: 'Press Start 2P', monospace;
   font-size: 16px;
