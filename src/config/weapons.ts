@@ -1,0 +1,10 @@
+export const PROJECTILE_SPEED = 10;
+export const PROJECTILE_DAMAGE = 15;
+export const PROJECTILE_RADIUS = 0.15;
+export const PROJECTILE_COLOR = 0xffdd44;
+export const FIRE_INTERVAL = 0.5;
+export const FIRE_RANGE = 12;
+export const PROJECTILE_LIFETIME = 10;
+export const HIT_FLASH_DURATION = 0.1;
+export const TRAIL_LENGTH = 4;
+export const TRAIL_OPACITY_START = 0.3;
