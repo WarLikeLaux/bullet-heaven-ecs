@@ -33,6 +33,14 @@ export type Entity = {
   enemy?: true;
   chaseTarget?: Vector3;
   spriteTexture?: Texture;
+  hp?: number;
+  maxHp?: number;
+  damage?: number;
+  invulnerableUntil?: number;
+  dead?: true;
+  projectile?: true;
+  lifetime?: number;
+  fireTimer?: number;
 };
 
 export function createWorld() {

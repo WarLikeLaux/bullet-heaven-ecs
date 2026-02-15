@@ -17,6 +17,18 @@ export const SPAWN_INTERVAL = 2;
 export const SPAWN_INTERVAL_MIN = 0.3;
 export const SPAWN_INTERVAL_DECAY = 0.95;
 export const SPAWN_RADIUS = 15;
+export const PLAYER_HP = 100;
+export const ENEMY_HP = 30;
+export const ENEMY_DAMAGE = 10;
+export const IFRAME_DURATION = 1.0;
+export const COLLISION_RADIUS = 0.8;
+export const PROJECTILE_SPEED = 10;
+export const PROJECTILE_DAMAGE = 15;
+export const PROJECTILE_RADIUS = 0.15;
+export const PROJECTILE_COLOR = 0xffdd44;
+export const FIRE_INTERVAL = 0.5;
+export const FIRE_RANGE = 12;
+export const PROJECTILE_LIFETIME = 3;
 
 export function generateEnemySpritePaths(): string[] {
   return Array.from({ length: CHARACTER_COUNT }, (_, i) => {
