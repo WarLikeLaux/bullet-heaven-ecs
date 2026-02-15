@@ -12,6 +12,12 @@ import {
   updateSpawner,
   getSpawnPosition,
 } from '@/core/spawner';
+import { runContactDamageSystem, runDeathSystem } from '@/core/combat';
+import {
+  runAutoFireSystem,
+  runProjectileHitSystem,
+  runLifetimeSystem,
+} from '@/core/weapons';
 import { createEnemy } from '@/entities/enemy';
 import { createPlayer } from '@/entities/player';
 import { configureSpritesheet, updateSpriteUV } from '@/rendering/spritesheet';
@@ -25,6 +31,7 @@ import { createBackground } from '@/rendering/background';
 import { hideLoadingScreen } from '@/ui/loading';
 import { createCharacterSelect } from '@/ui/character-select';
 import { createFpsCounter, createFpsState, updateFps } from '@/ui/fps-counter';
+import { showGameOver } from '@/ui/game-over';
 import {
   CAMERA_ZOOM,
   PLAYER_SPRITE,
@@ -51,6 +58,33 @@ async function handleCharacterChange(path: string) {
   updateSpriteUV(texture, 0, DIRECTION_DOWN);
 }
 
+function spawnEnemies(
+  spawner: ReturnType<typeof createSpawnerState>,
+  dt: number,
+  playerPosition: Vector3,
+  enemyTextures: Texture[]
+) {
+  const count = updateSpawner(spawner, dt);
+  for (let i = 0; i < count; i++) {
+    const pos = getSpawnPosition(playerPosition);
+    const tex = enemyTextures[Math.floor(Math.random() * enemyTextures.length)];
+    const enemy = createEnemy(scene, pos, playerPosition, tex);
+    world.add(enemy);
+  }
+}
+
+function runSystems(dt: number, elapsed: number) {
+  runInputSystem(world);
+  runChaseSystem(world);
+  runMovementSystem(world, dt);
+  runAutoFireSystem(world, scene, dt);
+  runProjectileHitSystem(world);
+  runContactDamageSystem(world, elapsed);
+  runLifetimeSystem(world, dt);
+  runDeathSystem(world, scene);
+  runSpriteAnimationSystem(world, dt);
+}
+
 function startGameLoop(
   player: Entity,
   fpsEl: HTMLElement,
@@ -60,27 +94,26 @@ function startGameLoop(
   const fpsState = createFpsState();
   const spawner = createSpawnerState();
   const playerPosition = player.position ?? new Vector3();
+  let elapsed = 0;
+  let gameOver = false;
 
   function tick() {
+    if (gameOver) return;
     requestAnimationFrame(tick);
 
     const now = performance.now();
     const dt = (now - lastTime) / 1000;
     lastTime = now;
+    elapsed += dt;
 
-    const spawnCount = updateSpawner(spawner, dt);
-    for (let i = 0; i < spawnCount; i++) {
-      const pos = getSpawnPosition(playerPosition);
-      const tex =
-        enemyTextures[Math.floor(Math.random() * enemyTextures.length)];
-      const enemy = createEnemy(scene, pos, playerPosition, tex);
-      world.add(enemy);
+    spawnEnemies(spawner, dt, playerPosition, enemyTextures);
+    runSystems(dt, elapsed);
+
+    if (player.dead) {
+      gameOver = true;
+      showGameOver();
+      return;
     }
-
-    runInputSystem(world);
-    runChaseSystem(world);
-    runSpriteAnimationSystem(world, dt);
-    runMovementSystem(world, dt);
 
     const fps = updateFps(fpsState, dt);
     fpsEl.textContent = `${fps} FPS`;
@@ -91,7 +124,6 @@ function startGameLoop(
     }
 
     runSpriteRender(world);
-
     renderer.render(scene, camera);
   }
 
