@@ -90,3 +90,39 @@ export function runSpriteAnimationSystem(world: World<Entity>, dt: number) {
     }
   }
 }
+
+const CHASE_VECTOR = new Vector3();
+
+export function runChaseSystem(world: World<Entity>) {
+  const query = world.with('chaseTarget', 'position', 'velocity', 'speed');
+
+  for (const entity of query) {
+    const { chaseTarget, position, speed } = entity;
+
+    CHASE_VECTOR.subVectors(chaseTarget, position);
+    const distSq = CHASE_VECTOR.lengthSq();
+
+    if (distSq < 0.01) {
+      entity.velocity.set(0, 0, 0);
+      if (entity.spriteAnimation) {
+        entity.spriteAnimation.isMoving = false;
+      }
+      continue;
+    }
+
+    CHASE_VECTOR.normalize().multiplyScalar(speed);
+    entity.velocity.copy(CHASE_VECTOR);
+
+    if (entity.spriteAnimation) {
+      entity.spriteAnimation.isMoving = true;
+      entity.spriteAnimation.direction = directionFromVelocity(CHASE_VECTOR);
+    }
+  }
+}
+
+export function directionFromVelocity(velocity: Vector3): number {
+  if (Math.abs(velocity.y) >= Math.abs(velocity.x)) {
+    return velocity.y < 0 ? DIRECTION_DOWN : DIRECTION_UP;
+  }
+  return velocity.x < 0 ? DIRECTION_LEFT : DIRECTION_RIGHT;
+}

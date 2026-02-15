@@ -1,5 +1,5 @@
 import { World } from 'miniplex';
-import { Object3D, Vector3 } from 'three';
+import { Object3D, Texture, Vector3 } from 'three';
 
 export const DIRECTION_DOWN = 0;
 export const DIRECTION_LEFT = 1;
@@ -30,6 +30,9 @@ export type Entity = {
   view?: Object3D;
   playerInput?: PlayerInput;
   spriteAnimation?: SpriteAnimation;
+  enemy?: true;
+  chaseTarget?: Vector3;
+  spriteTexture?: Texture;
 };
 
 export function createWorld() {
