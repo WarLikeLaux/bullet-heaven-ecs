@@ -1,71 +1,109 @@
 import {
-  Scene,
-  PerspectiveCamera,
-  WebGLRenderer,
-  BoxGeometry,
+  PlaneGeometry,
   MeshBasicMaterial,
   Mesh,
   Vector3,
+  Texture,
 } from 'three';
-import { createWorld, Entity } from '@/core/ecs';
-import { runMovementSystem } from '@/core/systems';
-
-const CAMERA_FOV = 75;
-const CAMERA_NEAR = 0.1;
-const CAMERA_FAR = 1000;
-const CAMERA_DISTANCE = 5;
-const CUBE_COLOR = 0x00ff00;
-const INITIAL_CUBE_COUNT = 100;
-const RANDOM_SPEED = 2;
-const FRAME_DT = 0.016;
+import { createWorld, Entity, DIRECTION_DOWN } from '@/core/ecs';
+import { createInputState, bindInput } from '@/core/input';
+import { preloadAll } from '@/core/assets';
+import {
+  runInputSystem,
+  runMovementSystem,
+  runSpriteAnimationSystem,
+} from '@/core/systems';
+import {
+  configureSpritesheet,
+  updateSpriteUV,
+  FRAME_COUNT,
+} from '@/rendering/spritesheet';
+import {
+  createRenderer,
+  createCamera,
+  createScene,
+  bindResize,
+} from '@/rendering/setup';
+import {
+  PLAYER_SPEED,
+  SPRITE_SCALE,
+  CAMERA_ZOOM,
+  ANIMATION_FPS,
+  PLAYER_SPRITE,
+} from '@/config';
 
 const world = createWorld();
-const scene = new Scene();
-const aspectRatio = window.innerWidth / window.innerHeight;
-const camera = new PerspectiveCamera(
-  CAMERA_FOV,
-  aspectRatio,
-  CAMERA_NEAR,
-  CAMERA_FAR
-);
-const renderer = new WebGLRenderer();
+const scene = createScene();
+const renderer = createRenderer();
+const camera = createCamera(CAMERA_ZOOM);
+bindResize(camera, renderer, CAMERA_ZOOM);
 
-document.body.appendChild(renderer.domElement);
-renderer.setSize(window.innerWidth, window.innerHeight);
-camera.position.z = CAMERA_DISTANCE;
+function createPlayer(texture: Texture): Entity {
+  configureSpritesheet(texture);
 
-function createCube(id: string, x: number, y: number): Entity {
-  const geometry = new BoxGeometry();
-  const material = new MeshBasicMaterial({ color: CUBE_COLOR });
+  const geometry = new PlaneGeometry(SPRITE_SCALE, SPRITE_SCALE);
+  const material = new MeshBasicMaterial({
+    map: texture,
+    transparent: true,
+    alphaTest: 0.1,
+  });
   const mesh = new Mesh(geometry, material);
-
   scene.add(mesh);
 
-  const randomDirection = new Vector3(
-    Math.random() - 0.5,
-    Math.random() - 0.5,
-    0
-  )
-    .normalize()
-    .multiplyScalar(RANDOM_SPEED);
+  const inputState = createInputState();
+  bindInput(inputState);
 
   return {
-    id,
-    position: new Vector3(x, y, 0),
-    velocity: randomDirection,
+    id: 'player',
+    position: new Vector3(0, 0, 0),
+    velocity: new Vector3(0, 0, 0),
+    speed: PLAYER_SPEED,
     view: mesh,
+    playerInput: inputState,
+    spriteAnimation: {
+      frameIndex: 0,
+      frameCount: FRAME_COUNT,
+      frameDuration: 1 / ANIMATION_FPS,
+      elapsed: 0,
+      direction: DIRECTION_DOWN,
+      isMoving: false,
+    },
   };
 }
 
-for (let i = 0; i < INITIAL_CUBE_COUNT; i++) {
-  const entity = createCube(`cube-${i}`, 0, 0);
-  world.add(entity);
+function startGameLoop(player: Entity, playerTexture: Texture) {
+  let lastTime = performance.now();
+
+  function tick() {
+    requestAnimationFrame(tick);
+
+    const now = performance.now();
+    const dt = (now - lastTime) / 1000;
+    lastTime = now;
+
+    runInputSystem(world);
+    runSpriteAnimationSystem(world, dt);
+    runMovementSystem(world, dt);
+
+    const anim = player.spriteAnimation;
+    if (anim) {
+      updateSpriteUV(playerTexture, anim.frameIndex, anim.direction);
+    }
+
+    renderer.render(scene, camera);
+  }
+
+  tick();
 }
 
-function animate() {
-  requestAnimationFrame(animate);
-  runMovementSystem(world, FRAME_DT);
-  renderer.render(scene, camera);
+async function boot() {
+  const [playerTexture] = await preloadAll([PLAYER_SPRITE]);
+  const player = createPlayer(playerTexture);
+
+  world.add(player);
+  updateSpriteUV(playerTexture, 0, DIRECTION_DOWN);
+
+  startGameLoop(player, playerTexture);
 }
 
-animate();
+boot();
