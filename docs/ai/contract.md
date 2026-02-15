@@ -34,7 +34,8 @@
 ## Проверка
 
 ```bash
-pnpm lint && pnpm typecheck
+pnpm check        # format + lint + typecheck + test
+pnpm check:all    # format + lint + typecheck + test:coverage
 ```
 
 ## См. также

@@ -1,7 +1,10 @@
 import { resolve } from 'path';
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 
-export default defineConfig({
+const isTauri = !!process.env.TAURI_ENV_PLATFORM;
+
+export default defineConfig(({ mode }) => ({
+  base: isTauri ? '/' : mode === 'production' ? '/bullet-heaven-ecs/' : '/',
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
@@ -11,4 +14,4 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
   },
-});
+}));

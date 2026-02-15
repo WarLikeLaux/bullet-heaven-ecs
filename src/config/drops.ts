@@ -1,0 +1,9 @@
+export const DROP_XP_CHANCE = 0.7;
+export const DROP_HEAL_CHANCE = 0.1;
+export const DROP_XP_VALUE = 15;
+export const DROP_HEAL_VALUE = 10;
+export const DROP_SIZE = 0.4;
+export const DROP_MAGNET_SPEED = 8;
+export const DROP_BASE_PICKUP_RADIUS = 1.5;
+export const DROP_COLLECT_RADIUS = 0.5;
+export const DROP_LIFETIME = 30;
