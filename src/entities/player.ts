@@ -9,7 +9,16 @@ import {
 import { Entity, DIRECTION_DOWN } from '@/core/ecs';
 import { createInputState, bindInput } from '@/core/input';
 import { configureSpritesheet, FRAME_COUNT } from '@/rendering/spritesheet';
-import { PLAYER_SPEED, SPRITE_SCALE, ANIMATION_FPS, PLAYER_HP } from '@/config';
+import {
+  PLAYER_SPEED,
+  SPRITE_SCALE,
+  ANIMATION_FPS,
+  PLAYER_HP,
+  BASE_XP_TO_LEVEL,
+  FIRE_INTERVAL,
+  PROJECTILE_DAMAGE,
+  IFRAME_DURATION,
+} from '@/config';
 
 type PlayerResult = {
   entity: Entity;
@@ -43,6 +52,13 @@ export function createPlayer(scene: Scene, texture: Texture): PlayerResult {
     maxHp: PLAYER_HP,
     invulnerableUntil: 0,
     fireTimer: 0,
+    fireInterval: FIRE_INTERVAL,
+    weaponDamage: PROJECTILE_DAMAGE,
+    xpMultiplier: 1,
+    iframeDuration: IFRAME_DURATION,
+    xp: 0,
+    xpToNext: BASE_XP_TO_LEVEL,
+    level: 1,
     spriteAnimation: {
       frameIndex: 0,
       frameCount: FRAME_COUNT,
