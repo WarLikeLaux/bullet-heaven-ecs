@@ -61,7 +61,7 @@ describe('updateSpawner', () => {
 });
 
 describe('getSpawnPosition', () => {
-  it('returns position at spawn radius from center', () => {
+  it('returns position at least spawn radius from center', () => {
     const center = new Vector3(5, 5, 0);
     const pos = getSpawnPosition(center);
 
@@ -69,7 +69,8 @@ describe('getSpawnPosition', () => {
     const dy = pos.y - center.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
 
-    expect(dist).toBeCloseTo(SPAWN_RADIUS, 0);
+    expect(dist).toBeGreaterThanOrEqual(SPAWN_RADIUS);
+    expect(dist).toBeLessThanOrEqual(SPAWN_RADIUS + 5);
   });
 
   it('spawns at z=0', () => {

@@ -44,9 +44,9 @@ describe('findNearestEnemy', () => {
   it('finds closest enemy in range', () => {
     const playerPos = new Vector3(0, 0, 0);
     const enemies = [
-      { position: new Vector3(5, 0, 0) },
-      { position: new Vector3(2, 0, 0) },
-      { position: new Vector3(8, 0, 0) },
+      { position: new Vector3(5, 0, 0), hp: 30 },
+      { position: new Vector3(2, 0, 0), hp: 30 },
+      { position: new Vector3(8, 0, 0), hp: 30 },
     ];
 
     const nearest = findNearestEnemy(playerPos, enemies);
@@ -55,7 +55,7 @@ describe('findNearestEnemy', () => {
 
   it('returns null if no enemies in range', () => {
     const playerPos = new Vector3(0, 0, 0);
-    const enemies = [{ position: new Vector3(FIRE_RANGE + 1, 0, 0) }];
+    const enemies = [{ position: new Vector3(FIRE_RANGE + 1, 0, 0), hp: 30 }];
 
     expect(findNearestEnemy(playerPos, enemies)).toBeNull();
   });
@@ -118,13 +118,13 @@ describe('runProjectileHitSystem', () => {
     world.add(proj);
     world.add(enemy);
 
-    runProjectileHitSystem(world);
+    runProjectileHitSystem(world, 0);
 
     expect(enemy.hp).toBe(15);
     expect(proj.dead).toBe(true);
   });
 
-  it('kills enemy when hp reaches 0', () => {
+  it('sets hitFlashUntil when hp reaches 0 (death deferred to flash)', () => {
     const world = createWorld();
     const proj: Entity = {
       id: 'proj',
@@ -136,10 +136,11 @@ describe('runProjectileHitSystem', () => {
     world.add(proj);
     world.add(enemy);
 
-    runProjectileHitSystem(world);
+    runProjectileHitSystem(world, 1);
 
     expect(enemy.hp).toBe(0);
-    expect(enemy.dead).toBe(true);
+    expect(enemy.dead).toBeUndefined();
+    expect(enemy.hitFlashUntil).toBeGreaterThan(1);
   });
 
   it('does not hit enemy out of range', () => {
@@ -154,7 +155,7 @@ describe('runProjectileHitSystem', () => {
     world.add(proj);
     world.add(enemy);
 
-    runProjectileHitSystem(world);
+    runProjectileHitSystem(world, 0);
 
     expect(enemy.hp).toBe(30);
     expect(proj.dead).toBeUndefined();
