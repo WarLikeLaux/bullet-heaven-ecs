@@ -48,6 +48,9 @@ export type Entity = {
   xp?: number;
   xpToNext?: number;
   level?: number;
+  hitFlashUntil?: number;
+  pendingDamage?: number;
+  targetRef?: Entity;
 };
 
 export function createWorld() {

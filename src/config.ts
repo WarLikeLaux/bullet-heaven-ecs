@@ -8,6 +8,17 @@ export const CHARACTER_PATH_PREFIX = 'assets/characters/pipo-nekonin';
 export const WORLD_SIZE = 200;
 export const TILE_REPEAT = 100;
 export const GROUND_TILE = 'assets/tiles/grass.png';
+export const DECOR_SPRITES = [
+  'assets/tiles/decor_tree1.png',
+  'assets/tiles/decor_bush2.png',
+  'assets/tiles/decor_rock1.png',
+];
+export const DECOR_COUNT = 300;
+export const DECOR_SPREAD = 95;
+export const DECOR_SCALE_MIN = 1.0;
+export const DECOR_SCALE_MAX = 2.0;
+export const TRAIL_LENGTH = 4;
+export const TRAIL_OPACITY_START = 0.3;
 export const MIN_LOADING_MS = 1000;
 export const LOADING_FADE_MS = 500;
 export const ENEMY_SPEED = 1.5;
@@ -16,7 +27,7 @@ export const ENEMY_SPAWN_DISTANCE = 8;
 export const SPAWN_INTERVAL = 2;
 export const SPAWN_INTERVAL_MIN = 0.3;
 export const SPAWN_INTERVAL_DECAY = 0.95;
-export const SPAWN_RADIUS = 15;
+export const SPAWN_RADIUS = 22;
 export const PLAYER_HP = 100;
 export const ENEMY_HP = 30;
 export const ENEMY_DAMAGE = 10;
@@ -28,10 +39,11 @@ export const PROJECTILE_RADIUS = 0.15;
 export const PROJECTILE_COLOR = 0xffdd44;
 export const FIRE_INTERVAL = 0.5;
 export const FIRE_RANGE = 12;
-export const PROJECTILE_LIFETIME = 3;
+export const PROJECTILE_LIFETIME = 10;
 export const XP_PER_KILL = 10;
 export const BASE_XP_TO_LEVEL = 50;
 export const XP_SCALE_FACTOR = 1.2;
+export const HIT_FLASH_DURATION = 0.1;
 
 export function generateEnemySpritePaths(): string[] {
   return Array.from({ length: CHARACTER_COUNT }, (_, i) => {

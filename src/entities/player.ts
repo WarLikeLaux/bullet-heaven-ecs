@@ -7,7 +7,7 @@ import {
   Texture,
 } from 'three';
 import { Entity, DIRECTION_DOWN } from '@/core/ecs';
-import { createInputState, bindInput } from '@/core/input';
+import { createInputState, bindInput, bindMouseInput } from '@/core/input';
 import { configureSpritesheet, FRAME_COUNT } from '@/rendering/spritesheet';
 import {
   PLAYER_SPEED,
@@ -39,6 +39,7 @@ export function createPlayer(scene: Scene, texture: Texture): PlayerResult {
 
   const inputState = createInputState();
   bindInput(inputState);
+  bindMouseInput(inputState);
 
   const entity: Entity = {
     id: 'player',

@@ -61,24 +61,23 @@ export function formatTime(seconds: number): string {
   return `${m}:${String(s).padStart(2, '0')}`;
 }
 
-export function updateHud(
-  hud: HudElements,
-  hp: number,
-  maxHp: number,
-  xp: number,
-  xpToNext: number,
-  level: number,
-  elapsed: number,
-  kills: number
-) {
-  const hpPct = Math.max(0, (hp / maxHp) * 100);
+type HudData = {
+  hp: number;
+  maxHp: number;
+  xp: number;
+  xpToNext: number;
+  level: number;
+  elapsed: number;
+  kills: number;
+};
+
+export function updateHud(hud: HudElements, d: HudData) {
+  const hpPct = Math.max(0, (d.hp / d.maxHp) * 100);
   hud.hpFill.style.width = `${hpPct}%`;
   hud.hpFill.dataset.low = hpPct <= 30 ? 'true' : 'false';
-
-  const xpPct = Math.max(0, (xp / xpToNext) * 100);
+  const xpPct = Math.max(0, (d.xp / d.xpToNext) * 100);
   hud.xpFill.style.width = `${xpPct}%`;
-
-  hud.levelEl.textContent = `Lv ${level}`;
-  hud.timerEl.textContent = formatTime(elapsed);
-  hud.killsEl.textContent = `☠ ${kills}`;
+  hud.levelEl.textContent = `Lv ${d.level}`;
+  hud.timerEl.textContent = formatTime(d.elapsed);
+  hud.killsEl.textContent = `☠ ${d.kills}`;
 }

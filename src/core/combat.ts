@@ -2,6 +2,7 @@ import { World } from 'miniplex';
 import { Scene } from 'three';
 import { Entity } from '@/core/ecs';
 import { COLLISION_RADIUS, IFRAME_DURATION } from '@/config';
+import { playEnemyDeath } from '@/core/audio';
 
 const COLLISION_RADIUS_SQ = COLLISION_RADIUS * COLLISION_RADIUS;
 
@@ -38,7 +39,10 @@ export function runDeathSystem(world: World<Entity>, scene: Scene): number {
   let kills = 0;
 
   for (const entity of query) {
-    if (entity.enemy) kills += 1;
+    if (entity.enemy) {
+      kills += 1;
+      playEnemyDeath();
+    }
     if (entity.view) {
       scene.remove(entity.view);
     }

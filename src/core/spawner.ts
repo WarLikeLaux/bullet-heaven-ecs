@@ -41,10 +41,7 @@ const SPAWN_OFFSET = new Vector3();
 
 export function getSpawnPosition(center: Vector3): Vector3 {
   const angle = Math.random() * Math.PI * 2;
-  SPAWN_OFFSET.set(
-    Math.cos(angle) * SPAWN_RADIUS,
-    Math.sin(angle) * SPAWN_RADIUS,
-    0
-  );
+  const radius = SPAWN_RADIUS + Math.random() * 5;
+  SPAWN_OFFSET.set(Math.cos(angle) * radius, Math.sin(angle) * radius, 0);
   return new Vector3().addVectors(center, SPAWN_OFFSET);
 }
