@@ -1,8 +1,10 @@
 import { resolve } from 'path';
 import { defineConfig } from 'vitest/config';
 
+const isTauri = !!process.env.TAURI_ENV_PLATFORM;
+
 export default defineConfig(({ mode }) => ({
-  base: mode === 'production' ? '/bullet-heaven-ecs/' : '/',
+  base: isTauri ? '/' : mode === 'production' ? '/bullet-heaven-ecs/' : '/',
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
