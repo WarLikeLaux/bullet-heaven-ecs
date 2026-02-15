@@ -1,11 +1,14 @@
 import { Entity } from '@/core/ecs';
+import { WeaponFactory } from '@/core/weapon-registry';
 
 export type UpgradeDef = {
   id: string;
   name: string;
   description: string;
   icon: string;
-  apply: (player: Entity) => void;
+  unique?: true;
+  apply?: (player: Entity) => void;
+  weaponFactory?: WeaponFactory;
 };
 
 export const UPGRADE_POOL: UpgradeDef[] = [
@@ -66,12 +69,22 @@ export const UPGRADE_POOL: UpgradeDef[] = [
   },
 ];
 
-export function pickRandomUpgrades(count: number): UpgradeDef[] {
-  const shuffled = [...UPGRADE_POOL].sort(() => Math.random() - 0.5);
+export function registerWeaponUpgrade(def: UpgradeDef) {
+  UPGRADE_POOL.push(def);
+}
+
+export function pickRandomUpgrades(
+  count: number,
+  ownedWeaponIds: string[] = []
+): UpgradeDef[] {
+  const available = UPGRADE_POOL.filter(
+    (u) => !u.unique || !ownedWeaponIds.includes(u.id)
+  );
+  const shuffled = [...available].sort(() => Math.random() - 0.5);
   return shuffled.slice(0, count);
 }
 
 export function applyUpgrade(player: Entity, upgradeId: string): void {
   const upgrade = UPGRADE_POOL.find((u) => u.id === upgradeId);
-  if (upgrade) upgrade.apply(player);
+  if (upgrade?.apply) upgrade.apply(player);
 }

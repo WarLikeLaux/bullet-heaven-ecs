@@ -51,6 +51,9 @@ export type Entity = {
   hitFlashUntil?: number;
   pendingDamage?: number;
   targetRef?: Entity;
+  weapons?: import('@/core/weapon-registry').WeaponInstance[];
+  orbiterOwner?: Entity;
+  orbiterAngle?: number;
 };
 
 export function createWorld() {
