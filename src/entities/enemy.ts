@@ -13,6 +13,7 @@ import {
   ENEMY_SCALE,
   ANIMATION_FPS,
   ENEMY_HP,
+  ENEMY_HP_PER_MINUTE,
   ENEMY_DAMAGE,
 } from '@/config';
 
@@ -22,7 +23,8 @@ export function createEnemy(
   scene: Scene,
   spawnPosition: Vector3,
   chaseTarget: Vector3,
-  baseTexture: Texture
+  baseTexture: Texture,
+  elapsed = 0
 ): Entity {
   const texture = baseTexture.clone();
   configureSpritesheet(texture);
@@ -49,7 +51,7 @@ export function createEnemy(
     enemy: true,
     chaseTarget,
     spriteTexture: texture,
-    hp: ENEMY_HP,
+    hp: ENEMY_HP + Math.floor(elapsed / 60) * ENEMY_HP_PER_MINUTE,
     damage: ENEMY_DAMAGE,
     spriteAnimation: {
       frameIndex: 0,

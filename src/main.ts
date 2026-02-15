@@ -133,15 +133,4 @@ async function boot() {
   });
 }
 
-function showFatalError(err: unknown) {
-  const msg =
-    err instanceof Error ? err.message + '\n' + err.stack : String(err);
-  const el = document.createElement('pre');
-  el.style.cssText =
-    'position:fixed;inset:0;z-index:99999;background:#1a0000;color:#ff4444;' +
-    'padding:2rem;font:14px monospace;white-space:pre-wrap;overflow:auto';
-  el.textContent = 'BOOT ERROR:\n\n' + msg;
-  document.body.appendChild(el);
-}
-
-boot().catch(showFatalError);
+boot();

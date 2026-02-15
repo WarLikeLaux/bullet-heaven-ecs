@@ -34,14 +34,18 @@ import { showGameOver } from '@/ui/game-over';
 import { createHud, updateHud } from '@/ui/hud';
 import { showLevelUp } from '@/ui/level-up';
 import { showUpgradeSelect } from '@/ui/upgrade-select';
-import { applyKillXp } from '@/core/progression';
+import { addRawXp } from '@/core/progression';
 import {
   pickRandomUpgrades,
   applyUpgrade,
-  UPGRADE_POOL,
+  getUpgradePool,
 } from '@/core/upgrades';
 import { showPause, hidePause } from '@/ui/pause-overlay';
 import { runWeapons, WeaponContext } from '@/core/weapon-registry';
+import { runRegenSystem } from '@/core/regen';
+import { runMagneticFieldSystem } from '@/core/magnetic-field';
+import { runChainExplosionSystem } from '@/core/chain-explosion';
+import { spawnDrops, runPickupSystem } from '@/core/drops';
 
 export type GameDeps = {
   world: World<Entity>;
@@ -54,36 +58,43 @@ export type GameDeps = {
   vfxSheets: Record<string, VfxSheet>;
 };
 
-function runAllSystems(deps: GameDeps, dt: number, elapsed: number): number {
-  const { world, scene } = deps;
+function runCombatSystems(deps: GameDeps, dt: number, elapsed: number): number {
+  const { world, scene, player } = deps;
   const fb = deps.vfxSheets.fireball;
-  runInputSystem(world);
-  runChaseSystem(world);
-  runMovementSystem(world, dt);
   runAutoFireSystem(world, scene, dt, fb);
   runProjectileHitSystem(world, elapsed);
   runContactDamageSystem(world, elapsed);
   runLifetimeSystem(world, dt);
-  const kills = runDeathSystem(world, scene);
+  runRegenSystem(world, dt);
+  runMagneticFieldSystem(world, dt, elapsed);
+  const { kills, deathPositions } = runDeathSystem(world, scene);
+  runChainExplosionSystem(world, deathPositions, player, elapsed);
+  spawnDrops(world, scene, deathPositions);
   if (fb) {
     for (const p of world.with('projectile', 'view'))
       updateProjectileVfx(p, fb, elapsed);
   }
+  return kills;
+}
+
+function runCoreSystems(deps: GameDeps, dt: number, elapsed: number): number {
+  const { world } = deps;
+  runInputSystem(world);
+  runChaseSystem(world);
+  runMovementSystem(world, dt);
+  const kills = runCombatSystems(deps, dt, elapsed);
   runSpriteAnimationSystem(world, dt);
   runHitFlashSystem(world, elapsed);
   return kills;
 }
 
 function handleWeaponUpgrade(ctx: WeaponContext, upgradeId: string) {
-  const def = UPGRADE_POOL.find((u) => u.id === upgradeId);
+  const pool = getUpgradePool();
+  const def = pool.find((u) => u.id === upgradeId);
   if (!def?.weaponFactory) return;
   const weapons = ctx.player.weapons ?? [];
   weapons.push(def.weaponFactory(ctx));
   ctx.player.weapons = weapons;
-}
-
-function ownedWeaponIds(player: Entity): string[] {
-  return (player.weapons ?? []).map((w) => w.id);
 }
 
 function renderFrame(deps: GameDeps, pos?: Vector3) {
@@ -93,6 +104,14 @@ function renderFrame(deps: GameDeps, pos?: Vector3) {
   }
   runSpriteRender(deps.world);
   deps.renderer.render(deps.scene, deps.camera);
+}
+
+function applyPickups(player: Entity, xp: number, hp: number) {
+  if (hp > 0) {
+    const max = player.maxHp ?? 100;
+    player.hp = Math.min((player.hp ?? 0) + hp, max);
+  }
+  return xp > 0 ? addRawXp(player, xp) : 0;
 }
 
 export function startGameLoop(deps: GameDeps) {
@@ -140,8 +159,8 @@ export function startGameLoop(deps: GameDeps) {
   async function handleLevelUp(levels: number) {
     for (let i = 0; i < levels; i++) {
       showLevelUp(deps.player.level ?? 1);
-      const upgrades = pickRandomUpgrades(3, ownedWeaponIds(deps.player));
-      const chosenId = await showUpgradeSelect(upgrades);
+      const upgrades = pickRandomUpgrades(3, deps.player);
+      const chosenId = await showUpgradeSelect(upgrades, deps.player);
       applyUpgrade(deps.player, chosenId);
       handleWeaponUpgrade(weaponCtx(0, elapsed), chosenId);
     }
@@ -166,15 +185,22 @@ export function startGameLoop(deps: GameDeps) {
           Math.floor(Math.random() * deps.enemyTextures.length)
         ];
       deps.world.add(
-        createEnemy(deps.scene, getSpawnPosition(playerPos), playerPos, tex)
+        createEnemy(
+          deps.scene,
+          getSpawnPosition(playerPos),
+          playerPos,
+          tex,
+          elapsed
+        )
       );
     }
 
-    const frameKills = runAllSystems(deps, dt, elapsed);
+    const frameKills = runCoreSystems(deps, dt, elapsed);
     runWeapons(deps.player.weapons ?? [], weaponCtx(dt, elapsed));
     totalKills += frameKills;
 
-    const levelsGained = applyKillXp(deps.player, frameKills);
+    const { xpGained, hpGained } = runPickupSystem(deps.world, deps.player, dt);
+    const levelsGained = applyPickups(deps.player, xpGained, hpGained);
     if (levelsGained > 0) {
       levelUpActive = true;
       handleLevelUp(levelsGained).then(() => {

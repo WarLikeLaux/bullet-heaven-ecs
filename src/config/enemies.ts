@@ -2,6 +2,7 @@ export const ENEMY_SPEED = 1.5;
 export const ENEMY_SCALE = 1.5;
 export const ENEMY_SPAWN_DISTANCE = 8;
 export const ENEMY_HP = 30;
+export const ENEMY_HP_PER_MINUTE = 5;
 export const ENEMY_DAMAGE = 10;
 export const COLLISION_RADIUS = 0.8;
 export const SPAWN_INTERVAL = 2;

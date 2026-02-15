@@ -7,24 +7,27 @@ export function registerAllWeapons() {
   registerWeaponUpgrade({
     id: 'orbiter',
     name: 'Орбита',
-    description: 'шары вращаются вокруг тебя',
     icon: '🔵',
+    maxLevel: 1,
+    descriptionPerLevel: ['шары вращаются вокруг тебя'],
     unique: true,
     weaponFactory: createOrbiterWeapon,
   });
   registerWeaponUpgrade({
     id: 'areaBlast',
     name: 'Взрыв',
-    description: 'AoE урон вокруг каждые 4с',
     icon: '💥',
+    maxLevel: 1,
+    descriptionPerLevel: ['AoE урон вокруг каждые 4с'],
     unique: true,
     weaponFactory: createAreaBlastWeapon,
   });
   registerWeaponUpgrade({
     id: 'chainLightning',
     name: 'Молния',
-    description: 'цепь между 4 врагами каждые 3с',
     icon: '⚡',
+    maxLevel: 1,
+    descriptionPerLevel: ['цепь между 4 врагами каждые 3с'],
     unique: true,
     weaponFactory: createChainLightningWeapon,
   });

@@ -97,40 +97,59 @@ export function playLevelUp(): void {
 const BASS_NOTES = [130.8, 146.8, 164.8, 146.8];
 const BASS_STEP = 0.4;
 
+function ensureResumed(ac: AudioContext): Promise<void> {
+  if (ac.state === 'running') return Promise.resolve();
+  ac.resume();
+  return new Promise((resolve) => {
+    const events = ['click', 'keydown', 'touchstart', 'pointerdown'] as const;
+    function handler() {
+      ac.resume().then(() => {
+        for (const e of events) document.removeEventListener(e, handler);
+        resolve();
+      });
+    }
+    for (const e of events)
+      document.addEventListener(e, handler, { once: false });
+  });
+}
+
 export function startMusic(): void {
   const c = getCtx();
   if (!c) return;
   const ac: AudioContext = c;
-  musicGain = ac.createGain();
-  musicGain.gain.value = muted ? 0 : 0.06;
-  musicGain.connect(ac.destination);
-  const mg = musicGain;
 
-  function scheduleBar(startTime: number) {
-    for (let i = 0; i < BASS_NOTES.length; i++) {
-      const osc = ac.createOscillator();
-      const env = ac.createGain();
-      osc.type = 'triangle';
-      osc.frequency.value = BASS_NOTES[i];
-      const t = startTime + i * BASS_STEP;
-      env.gain.setValueAtTime(1, t);
-      env.gain.exponentialRampToValueAtTime(0.01, t + BASS_STEP * 0.9);
-      osc.connect(env).connect(mg);
-      osc.start(t);
-      osc.stop(t + BASS_STEP);
+  ensureResumed(ac).then(() => {
+    musicGain = ac.createGain();
+    musicGain.gain.value = muted ? 0 : 0.06;
+    musicGain.connect(ac.destination);
+    const mg = musicGain;
+
+    function scheduleBar(startTime: number) {
+      for (let i = 0; i < BASS_NOTES.length; i++) {
+        const osc = ac.createOscillator();
+        const env = ac.createGain();
+        osc.type = 'triangle';
+        osc.frequency.value = BASS_NOTES[i];
+        const t = startTime + i * BASS_STEP;
+        env.gain.setValueAtTime(1, t);
+        env.gain.exponentialRampToValueAtTime(0.01, t + BASS_STEP * 0.9);
+        osc.connect(env).connect(mg);
+        osc.start(t);
+        osc.stop(t + BASS_STEP);
+      }
     }
-  }
 
-  const barLen = BASS_NOTES.length * BASS_STEP;
-  let nextBar = ac.currentTime;
+    const barLen = BASS_NOTES.length * BASS_STEP;
+    let nextBar = ac.currentTime;
 
-  function loop() {
-    while (nextBar < ac.currentTime + 2) {
-      scheduleBar(nextBar);
-      nextBar += barLen;
+    function loop() {
+      while (nextBar < ac.currentTime + 2) {
+        scheduleBar(nextBar);
+        nextBar += barLen;
+      }
+      setTimeout(loop, 1000);
     }
-    setTimeout(loop, 1000);
-  }
 
-  loop();
+    loop();
+  });
 }

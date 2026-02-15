@@ -43,19 +43,21 @@ function makeEnemy(x = 0, y = 0, hp = 30): Entity {
 describe('findNearestEnemy', () => {
   it('finds closest enemy in range', () => {
     const playerPos = new Vector3(0, 0, 0);
-    const enemies = [
-      { position: new Vector3(5, 0, 0), hp: 30 },
-      { position: new Vector3(2, 0, 0), hp: 30 },
-      { position: new Vector3(8, 0, 0), hp: 30 },
+    const enemies: Entity[] = [
+      { id: 'e1', position: new Vector3(5, 0, 0), hp: 30 },
+      { id: 'e2', position: new Vector3(2, 0, 0), hp: 30 },
+      { id: 'e3', position: new Vector3(8, 0, 0), hp: 30 },
     ];
 
     const nearest = findNearestEnemy(playerPos, enemies);
-    expect(nearest?.position.x).toBe(2);
+    expect(nearest?.position?.x).toBe(2);
   });
 
   it('returns null if no enemies in range', () => {
     const playerPos = new Vector3(0, 0, 0);
-    const enemies = [{ position: new Vector3(FIRE_RANGE + 1, 0, 0), hp: 30 }];
+    const enemies: Entity[] = [
+      { id: 'far', position: new Vector3(FIRE_RANGE + 1, 0, 0), hp: 30 },
+    ];
 
     expect(findNearestEnemy(playerPos, enemies)).toBeNull();
   });

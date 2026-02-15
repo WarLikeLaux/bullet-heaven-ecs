@@ -54,6 +54,20 @@ export type Entity = {
   weapons?: import('@/core/weapon-registry').WeaponInstance[];
   orbiterOwner?: Entity;
   orbiterAngle?: number;
+  armor?: number;
+  regen?: number;
+  pickupRadius?: number;
+  critChance?: number;
+  multishotCount?: number;
+  magneticDamage?: number;
+  magneticRadius?: number;
+  deflectChance?: number;
+  chainExplosionDamage?: number;
+  chainExplosionRadius?: number;
+  upgradeLevels?: Record<string, number>;
+  pickup?: 'xp' | 'heal';
+  pickupValue?: number;
+  magnetTarget?: Vector3;
 };
 
 export function createWorld() {

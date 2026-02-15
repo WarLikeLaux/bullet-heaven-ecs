@@ -139,4 +139,30 @@ describe('Contact Damage System', () => {
 
     expect(player.hp).toBe(90);
   });
+
+  it('armor reduces incoming damage', () => {
+    const world = createWorld();
+    const player = makePlayer(0, 0, 100);
+    player.armor = 3;
+    const enemy = makeEnemy(0, 0, 10);
+    world.add(player);
+    world.add(enemy);
+
+    runContactDamageSystem(world, 0);
+
+    expect(player.hp).toBe(93);
+  });
+
+  it('armor does not reduce damage below 1', () => {
+    const world = createWorld();
+    const player = makePlayer(0, 0, 100);
+    player.armor = 50;
+    const enemy = makeEnemy(0, 0, 10);
+    world.add(player);
+    world.add(enemy);
+
+    runContactDamageSystem(world, 0);
+
+    expect(player.hp).toBe(99);
+  });
 });

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { Entity } from '@/core/ecs';
 import {
-  UPGRADE_POOL,
+  getUpgradePool,
   pickRandomUpgrades,
   applyUpgrade,
 } from '@/core/upgrades';
@@ -17,24 +17,36 @@ function makePlayer(): Entity {
     fireInterval: FIRE_INTERVAL,
     xpMultiplier: 1,
     iframeDuration: IFRAME_DURATION,
+    upgradeLevels: {},
   };
 }
 
 describe('pickRandomUpgrades', () => {
   it('returns requested count', () => {
-    const upgrades = pickRandomUpgrades(3);
+    const player = makePlayer();
+    const upgrades = pickRandomUpgrades(3, player);
     expect(upgrades).toHaveLength(3);
   });
 
   it('returns unique upgrades', () => {
-    const upgrades = pickRandomUpgrades(3);
+    const player = makePlayer();
+    const upgrades = pickRandomUpgrades(3, player);
     const ids = upgrades.map((u) => u.id);
     expect(new Set(ids).size).toBe(3);
   });
 
   it('never returns more than pool size', () => {
-    const upgrades = pickRandomUpgrades(UPGRADE_POOL.length + 5);
-    expect(upgrades.length).toBeLessThanOrEqual(UPGRADE_POOL.length);
+    const pool = getUpgradePool();
+    const player = makePlayer();
+    const upgrades = pickRandomUpgrades(pool.length + 5, player);
+    expect(upgrades.length).toBeLessThanOrEqual(pool.length);
+  });
+
+  it('excludes maxed out upgrades', () => {
+    const player = makePlayer();
+    player.upgradeLevels = { damageUp: 5 };
+    const upgrades = pickRandomUpgrades(20, player);
+    expect(upgrades.find((u) => u.id === 'damageUp')).toBeUndefined();
   });
 });
 
@@ -77,10 +89,11 @@ describe('applyUpgrade', () => {
     expect(player.iframeDuration).toBe(IFRAME_DURATION + 0.5);
   });
 
-  it('stacks multiple upgrades', () => {
+  it('stacks multiple upgrades via levels', () => {
     const player = makePlayer();
     applyUpgrade(player, 'damageUp');
     applyUpgrade(player, 'damageUp');
+    expect(player.upgradeLevels?.damageUp).toBe(2);
     expect(player.weaponDamage).toBe(PROJECTILE_DAMAGE + 10);
   });
 
@@ -89,5 +102,64 @@ describe('applyUpgrade', () => {
     applyUpgrade(player, 'xpBoost');
     applyUpgrade(player, 'xpBoost');
     expect(player.xpMultiplier).toBeCloseTo(1.5);
+  });
+
+  it('armor reduces damage taken', () => {
+    const player = makePlayer();
+    applyUpgrade(player, 'armor');
+    expect(player.armor).toBe(1);
+    applyUpgrade(player, 'armor');
+    expect(player.armor).toBe(2);
+  });
+
+  it('regen sets hp regen rate', () => {
+    const player = makePlayer();
+    applyUpgrade(player, 'regen');
+    expect(player.regen).toBe(1);
+    applyUpgrade(player, 'regen');
+    expect(player.regen).toBe(2);
+  });
+
+  it('multishot adds extra projectiles', () => {
+    const player = makePlayer();
+    applyUpgrade(player, 'multishot');
+    expect(player.multishotCount).toBe(1);
+    applyUpgrade(player, 'multishot');
+    expect(player.multishotCount).toBe(2);
+  });
+
+  it('deflect sets deflection chance', () => {
+    const player = makePlayer();
+    applyUpgrade(player, 'deflect');
+    expect(player.deflectChance).toBeCloseTo(0.1);
+    applyUpgrade(player, 'deflect');
+    expect(player.deflectChance).toBeCloseTo(0.2);
+  });
+
+  it('magneticField sets magnetic damage and radius', () => {
+    const player = makePlayer();
+    applyUpgrade(player, 'magneticField');
+    expect(player.magneticDamage).toBe(3);
+    expect(player.magneticRadius).toBeCloseTo(2.3);
+  });
+
+  it('pickupRadius sets pickup multiplier', () => {
+    const player = makePlayer();
+    applyUpgrade(player, 'pickupRadius');
+    expect(player.pickupRadius).toBeCloseTo(1.2);
+  });
+
+  it('luck sets crit chance', () => {
+    const player = makePlayer();
+    applyUpgrade(player, 'luck');
+    expect(player.critChance).toBeCloseTo(0.1);
+    applyUpgrade(player, 'luck');
+    expect(player.critChance).toBeCloseTo(0.2);
+  });
+
+  it('does not exceed maxLevel', () => {
+    const player = makePlayer();
+    for (let i = 0; i < 10; i++) applyUpgrade(player, 'multishot');
+    expect(player.upgradeLevels?.multishot).toBe(3);
   });
 });

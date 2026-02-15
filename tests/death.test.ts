@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { Scene } from 'three';
+import { Scene, Vector3 } from 'three';
 import { createWorld, Entity } from '@/core/ecs';
 import { runDeathSystem } from '@/core/combat';
 
@@ -44,5 +44,23 @@ describe('Death System', () => {
 
     expect(world.entities.length).toBe(1);
     expect(world.entities[0].id).toBe('alive');
+  });
+
+  it('returns kills and death positions', () => {
+    const world = createWorld();
+    const scene = { remove: vi.fn() } as unknown as Scene;
+
+    world.add({
+      id: 'e1',
+      dead: true,
+      enemy: true,
+      position: new Vector3(5, 10, 0),
+    });
+
+    const result = runDeathSystem(world, scene);
+    expect(result.kills).toBe(1);
+    expect(result.deathPositions).toHaveLength(1);
+    expect(result.deathPositions[0].x).toBe(5);
+    expect(result.deathPositions[0].y).toBe(10);
   });
 });

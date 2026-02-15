@@ -106,26 +106,6 @@
       </div>
       <div class="loading-hint">загрузка...</div>
     </div>
-    <script>
-      window.__dbg = function(msg) {
-        var el = document.getElementById('dbg');
-        if (!el) {
-          el = document.createElement('pre');
-          el.id = 'dbg';
-          el.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:99999;background:rgba(0,0,0,0.9);color:#0f0;padding:1rem;font:11px monospace;max-height:40vh;overflow:auto';
-          document.body.appendChild(el);
-        }
-        el.textContent += msg + '\n';
-      };
-      window.onerror = function(msg, src, line) { window.__dbg('[ERROR] ' + msg + ' at ' + src + ':' + line); };
-      window.addEventListener('unhandledrejection', function(e) { window.__dbg('[REJECT] ' + e.reason); });
-      try {
-        var c = document.createElement('canvas');
-        var gl = c.getContext('webgl2') || c.getContext('webgl');
-        window.__dbg(gl ? '[webgl] OK — ' + gl.getParameter(gl.RENDERER) : '[webgl] FAIL — no context');
-      } catch(e) { window.__dbg('[webgl] ERROR — ' + e); }
-      window.__dbg('[boot] page loaded, waiting for module...');
-    </script>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

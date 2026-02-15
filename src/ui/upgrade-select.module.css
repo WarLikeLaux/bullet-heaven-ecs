@@ -32,6 +32,9 @@
 .cards {
   display: flex;
   gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 640px;
 }
 
 .card {
@@ -46,7 +49,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .card:hover {
@@ -64,6 +67,16 @@
   font-family: 'Press Start 2P', monospace;
   font-size: 11px;
   color: #fff;
+}
+
+.level {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 7px;
+  color: #7df;
+  background: rgba(100, 200, 255, 0.12);
+  border: 1px solid rgba(100, 200, 255, 0.3);
+  border-radius: 6px;
+  padding: 3px 8px;
 }
 
 .desc {
