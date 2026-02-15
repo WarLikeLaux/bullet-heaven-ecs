@@ -1,7 +1,8 @@
 import { resolve } from 'path';
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
+  base: mode === 'production' ? '/bullet-heaven-ecs/' : '/',
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
@@ -11,4 +12,4 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
   },
-});
+}));
