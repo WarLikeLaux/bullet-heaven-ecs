@@ -1,16 +1,16 @@
 module.exports = {
-	apps: [
-		{
-			name: 'bullet-heaven-dev',
-			script: './scripts/start-dev.sh',
-			cwd: './',
-			interpreter: 'bash',
-			watch: false,
-			autorestart: process.env.NODE_ENV !== 'development',
-			max_memory_restart: '1G',
-			env: {
-				NODE_ENV: 'development',
-			},
-		},
-	],
+  apps: [
+    {
+      name: 'bullet-heaven-dev',
+      script: './scripts/start-dev.sh',
+      cwd: './',
+      interpreter: 'bash',
+      watch: false,
+      autorestart: process.env.NODE_ENV !== 'development',
+      max_memory_restart: '1G',
+      env: {
+        NODE_ENV: 'development',
+      },
+    },
+  ],
 };
