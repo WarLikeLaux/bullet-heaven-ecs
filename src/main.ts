@@ -31,7 +31,8 @@ import {
   createScene,
   bindResize,
 } from '@/rendering/setup';
-import { createBackground } from '@/rendering/background';
+import { createBackground, scatterDecor } from '@/rendering/background';
+import { runHitFlashSystem } from '@/rendering/hit-flash';
 import { hideLoadingScreen } from '@/ui/loading';
 import { createCharacterSelect } from '@/ui/character-select';
 import { createFpsCounter, createFpsState, updateFps } from '@/ui/fps-counter';
@@ -41,10 +42,14 @@ import { showLevelUp } from '@/ui/level-up';
 import { showUpgradeSelect } from '@/ui/upgrade-select';
 import { applyKillXp } from '@/core/progression';
 import { pickRandomUpgrades, applyUpgrade } from '@/core/upgrades';
+import { startMusic } from '@/core/audio';
+import { createMuteButton } from '@/ui/mute-button';
+import { createJoystick, isTouchDevice } from '@/ui/joystick';
 import {
   CAMERA_ZOOM,
   PLAYER_SPRITE,
   GROUND_TILE,
+  DECOR_SPRITES,
   MIN_LOADING_MS,
   generateEnemySpritePaths,
 } from '@/config';
@@ -54,7 +59,6 @@ const scene = createScene();
 const renderer = createRenderer();
 const camera = createCamera(CAMERA_ZOOM);
 bindResize(camera, renderer, CAMERA_ZOOM);
-
 let activeMaterial: MeshBasicMaterial;
 let playerEntity: Entity;
 
@@ -72,11 +76,12 @@ function runSystems(dt: number, elapsed: number): number {
   runChaseSystem(world);
   runMovementSystem(world, dt);
   runAutoFireSystem(world, scene, dt);
-  runProjectileHitSystem(world);
+  runProjectileHitSystem(world, elapsed);
   runContactDamageSystem(world, elapsed);
   runLifetimeSystem(world, dt);
   const kills = runDeathSystem(world, scene);
   runSpriteAnimationSystem(world, dt);
+  runHitFlashSystem(world, elapsed);
   return kills;
 }
 
@@ -89,12 +94,11 @@ async function handleLevelUp(player: Entity, levels: number) {
   }
 }
 
-function updateCamera(pos: Vector3) {
-  camera.position.x = pos.x;
-  camera.position.y = pos.y;
-}
-
-function renderFrame() {
+function renderFrame(pos?: Vector3) {
+  if (pos) {
+    camera.position.x = pos.x;
+    camera.position.y = pos.y;
+  }
   runSpriteRender(world);
   renderer.render(scene, camera);
 }
@@ -128,13 +132,18 @@ function startGameLoop(
     }
 
     elapsed += dt;
-
     const spawnCount = updateSpawner(spawner, dt);
     for (let i = 0; i < spawnCount; i++) {
-      const pos = getSpawnPosition(playerPosition);
       const tex =
         enemyTextures[Math.floor(Math.random() * enemyTextures.length)];
-      world.add(createEnemy(scene, pos, playerPosition, tex));
+      world.add(
+        createEnemy(
+          scene,
+          getSpawnPosition(playerPosition),
+          playerPosition,
+          tex
+        )
+      );
     }
     const frameKills = runSystems(dt, elapsed);
     totalKills += frameKills;
@@ -150,54 +159,54 @@ function startGameLoop(
 
     if (player.dead) {
       gameOver = true;
-      showGameOver(elapsed, totalKills);
+      showGameOver({ elapsed, kills: totalKills, level: player.level ?? 1 });
       return;
     }
 
-    updateHud(
-      hud,
-      player.hp ?? 0,
-      player.maxHp ?? 1,
-      player.xp ?? 0,
-      player.xpToNext ?? 1,
-      player.level ?? 1,
+    updateHud(hud, {
+      hp: player.hp ?? 0,
+      maxHp: player.maxHp ?? 1,
+      xp: player.xp ?? 0,
+      xpToNext: player.xpToNext ?? 1,
+      level: player.level ?? 1,
       elapsed,
-      totalKills
-    );
+      kills: totalKills,
+    });
 
     fpsEl.textContent = `${updateFps(fpsState, dt)} FPS`;
-    if (player.position) updateCamera(player.position);
-    renderFrame();
+    renderFrame(player.position);
   }
 
   tick();
 }
 
 async function boot() {
-  const enemySpritePaths = generateEnemySpritePaths();
-  const assetsPromise = preloadAll([
+  const paths = [
     PLAYER_SPRITE,
     GROUND_TILE,
-    ...enemySpritePaths,
-  ]);
+    ...DECOR_SPRITES,
+    ...generateEnemySpritePaths(),
+  ];
   const minWait = new Promise<void>((r) => setTimeout(r, MIN_LOADING_MS));
-
-  const [textures] = await Promise.all([assetsPromise, minWait]);
-  const [playerTexture, groundTexture, ...enemyTextures] = textures;
+  const [textures] = await Promise.all([preloadAll(paths), minWait]);
+  const [playerTex, groundTex, ...rest] = textures;
+  const decorTex = rest.slice(0, DECOR_SPRITES.length);
+  const enemyTex = rest.slice(DECOR_SPRITES.length);
 
   await hideLoadingScreen();
+  createBackground(scene, groundTex);
+  scatterDecor(scene, decorTex);
 
-  createBackground(scene, groundTexture);
-  const { entity: player, material } = createPlayer(scene, playerTexture);
+  const { entity: player, material } = createPlayer(scene, playerTex);
   activeMaterial = material;
   playerEntity = player;
   world.add(player);
-  updateSpriteUV(playerTexture, 0, DIRECTION_DOWN);
-
+  updateSpriteUV(playerTex, 0, DIRECTION_DOWN);
   createCharacterSelect(PLAYER_SPRITE, handleCharacterChange);
-
-  const fpsEl = createFpsCounter();
-  startGameLoop(player, fpsEl, enemyTextures);
+  createMuteButton();
+  if (isTouchDevice() && player.playerInput) createJoystick(player.playerInput);
+  startMusic();
+  startGameLoop(player, createFpsCounter(), enemyTex);
 }
 
 boot();
