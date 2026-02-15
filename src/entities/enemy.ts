@@ -8,7 +8,13 @@ import {
 } from 'three';
 import { Entity, DIRECTION_DOWN } from '@/core/ecs';
 import { configureSpritesheet, FRAME_COUNT } from '@/rendering/spritesheet';
-import { ENEMY_SPEED, ENEMY_SCALE, ANIMATION_FPS } from '@/config';
+import {
+  ENEMY_SPEED,
+  ENEMY_SCALE,
+  ANIMATION_FPS,
+  ENEMY_HP,
+  ENEMY_DAMAGE,
+} from '@/config';
 
 let nextEnemyId = 0;
 
@@ -43,6 +49,8 @@ export function createEnemy(
     enemy: true,
     chaseTarget,
     spriteTexture: texture,
+    hp: ENEMY_HP,
+    damage: ENEMY_DAMAGE,
     spriteAnimation: {
       frameIndex: 0,
       frameCount: FRAME_COUNT,

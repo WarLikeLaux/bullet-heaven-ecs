@@ -9,7 +9,7 @@ import {
 import { Entity, DIRECTION_DOWN } from '@/core/ecs';
 import { createInputState, bindInput } from '@/core/input';
 import { configureSpritesheet, FRAME_COUNT } from '@/rendering/spritesheet';
-import { PLAYER_SPEED, SPRITE_SCALE, ANIMATION_FPS } from '@/config';
+import { PLAYER_SPEED, SPRITE_SCALE, ANIMATION_FPS, PLAYER_HP } from '@/config';
 
 type PlayerResult = {
   entity: Entity;
@@ -39,6 +39,10 @@ export function createPlayer(scene: Scene, texture: Texture): PlayerResult {
     view: mesh,
     playerInput: inputState,
     spriteTexture: texture,
+    hp: PLAYER_HP,
+    maxHp: PLAYER_HP,
+    invulnerableUntil: 0,
+    fireTimer: 0,
     spriteAnimation: {
       frameIndex: 0,
       frameCount: FRAME_COUNT,
