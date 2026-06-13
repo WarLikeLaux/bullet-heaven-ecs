@@ -1,0 +1,62 @@
+.button {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  width: 48px;
+  height: 48px;
+  border: 2px solid rgba(192, 132, 252, 0.3);
+  border-radius: 12px;
+  cursor: pointer;
+  z-index: 100;
+  image-rendering: pixelated;
+  background-color: rgba(26, 26, 46, 0.8);
+  transition:
+    border-color 0.2s,
+    transform 0.2s;
+}
+
+.button:hover {
+  border-color: #c084fc;
+  transform: scale(1.05);
+}
+
+.panel {
+  position: fixed;
+  top: 76px;
+  right: 16px;
+  display: none;
+  grid-template-columns: repeat(8, 48px);
+  gap: 4px;
+  padding: 12px;
+  background: rgba(20, 20, 48, 0.95);
+  border: 1px solid rgba(192, 132, 252, 0.2);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  z-index: 100;
+}
+
+.panelOpen {
+  display: grid;
+}
+
+.option {
+  width: 48px;
+  height: 48px;
+  background-position: 0 0;
+  image-rendering: pixelated;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    transform 0.15s;
+}
+
+.option:hover {
+  border-color: #c084fc;
+  transform: scale(1.1);
+}
+
+.active {
+  border-color: #ff6b9d;
+}
